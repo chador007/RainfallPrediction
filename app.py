@@ -511,6 +511,16 @@ elif page == "🔮 Rainfall Prediction":
         
         st.markdown("---")
         
+        # Define max values based on actual data range (with buffer)
+        # Calculate reasonable max values from the dataset
+        MAX_RAINFALL = float(df[['rfh_avg', 'r1h', 'r1h_avg', 'r3h', 'r3h_avg']].max().max() * 1.5)
+        MAX_RAINFALL = max(MAX_RAINFALL, 500.0)  # Ensure at least 500
+        
+        # Helper function to safely get default value within range
+        def safe_default(value, min_val=0.0, max_val=MAX_RAINFALL):
+            """Ensure default value is within the allowed range."""
+            return float(max(min_val, min(float(value), max_val)))
+        
         # Input columns
         col1, col2, col3 = st.columns(3)
         
@@ -545,17 +555,20 @@ elif page == "🔮 Rainfall Prediction":
                 help="Day of the month"
             )
         
+        # Get default values from monthly averages AFTER month is selected
+        if input_month in monthly_feature_avg.index:
+            default_month_avg = monthly_feature_avg.loc[input_month]
+        else:
+            default_month_avg = monthly_feature_avg.mean()
+        
         with col2:
             st.markdown("**🌧️ Rainfall Features**")
-            
-            # Get default values from monthly averages
-            default_month_avg = monthly_feature_avg.loc[input_month] if input_month in monthly_feature_avg.index else monthly_feature_avg.mean()
             
             input_rfh_avg = st.number_input(
                 "rfh_avg (Rainfall Average)",
                 min_value=0.0,
-                max_value=100.0,
-                value=float(default_month_avg['rfh_avg']),
+                max_value=MAX_RAINFALL,
+                value=safe_default(default_month_avg['rfh_avg']),
                 step=0.1,
                 format="%.3f",
                 help="Average rainfall indicator"
@@ -564,8 +577,8 @@ elif page == "🔮 Rainfall Prediction":
             input_r1h = st.number_input(
                 "r1h (1-hour Rainfall)",
                 min_value=0.0,
-                max_value=100.0,
-                value=float(default_month_avg['r1h']),
+                max_value=MAX_RAINFALL,
+                value=safe_default(default_month_avg['r1h']),
                 step=0.1,
                 format="%.3f",
                 help="1-hour rainfall measurement"
@@ -574,8 +587,8 @@ elif page == "🔮 Rainfall Prediction":
             input_r1h_avg = st.number_input(
                 "r1h_avg (1-hour Rainfall Average)",
                 min_value=0.0,
-                max_value=100.0,
-                value=float(default_month_avg['r1h_avg']),
+                max_value=MAX_RAINFALL,
+                value=safe_default(default_month_avg['r1h_avg']),
                 step=0.1,
                 format="%.3f",
                 help="Average of 1-hour rainfall"
@@ -587,8 +600,8 @@ elif page == "🔮 Rainfall Prediction":
             input_r3h = st.number_input(
                 "r3h (3-hour Rainfall)",
                 min_value=0.0,
-                max_value=100.0,
-                value=float(default_month_avg['r3h']),
+                max_value=MAX_RAINFALL,
+                value=safe_default(default_month_avg['r3h']),
                 step=0.1,
                 format="%.3f",
                 help="3-hour rainfall measurement"
@@ -597,14 +610,16 @@ elif page == "🔮 Rainfall Prediction":
             input_r3h_avg = st.number_input(
                 "r3h_avg (3-hour Rainfall Average)",
                 min_value=0.0,
-                max_value=100.0,
-                value=float(default_month_avg['r3h_avg']),
+                max_value=MAX_RAINFALL,
+                value=safe_default(default_month_avg['r3h_avg']),
                 step=0.1,
                 format="%.3f",
                 help="Average of 3-hour rainfall"
             )
         
         st.markdown("---")
+        
+        # Rest of your prediction code remains the same...
         
         # Predict button
         if st.button("🔮 Predict Rainfall", type="primary", key="predict_single"):
