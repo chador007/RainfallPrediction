@@ -618,8 +618,8 @@ elif page == "🔮 Rainfall Prediction":
                 'r1h': [float(input_r1h)],
                 'r1h_avg': [float(input_r1h_avg)],
                 'r3h': [float(input_r3h)],
-                'r3h_avg': [float(input_r3h_avg)],
-                'n_pixels': [float(input_n_pixels)]
+                'r3h_avg': [float(input_r3h_avg)]
+    
             })
             
             # Scale features
